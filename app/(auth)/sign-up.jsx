@@ -1,10 +1,11 @@
-import { View, ScrollView, Dimensions, Image, Text } from "react-native";
+import { View, ScrollView, Dimensions, Image, Text, Alert } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
+import { createUser } from "../../lib/appwrite";
 const SignUp = () => {
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -12,12 +13,29 @@ const SignUp = () => {
     email: "",
     password: "",
   });
-  const submit = async () => {};
+  const submit = async () => {
+    if (!form.username || !form.email || !form.password) {
+      Alert.alert("Error", "Please fill all fields");
+    }
+    setSubmitting(true);
+
+    try {
+      const result = await createUser(form.email, form.password, form.username);
+
+      // TODO: Set it To global State
+
+      router.replace("/home");
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
   return (
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
         <View
-          className="w-full flex justify-center h-full px-4 my-6"
+          className="w-full flex justify-center min-h-[85vh] px-4 my-6"
           style={{
             minHeight: Dimensions.get("window").height - 100,
           }}
