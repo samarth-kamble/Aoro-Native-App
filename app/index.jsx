@@ -4,11 +4,18 @@ import { View, Text, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { images } from "../constants";
-import CustomButton from "../components/CustomButton";
+import { CustomButton, Loader } from "../components";
+import { useGlobalContext } from "../context/GlobalProvider";
 
 const Welcome = () => {
+  const { loading, isLogged } = useGlobalContext();
+
+  if (!loading && isLogged) return <Redirect href="/home" />;
+
   return (
     <SafeAreaView className="bg-primary h-full">
+      <Loader isLoading={loading} />
+
       <ScrollView
         contentContainerStyle={{
           height: "100%",
@@ -45,6 +52,7 @@ const Welcome = () => {
             Where Creativity Meets Innovation: Embark on a Journey of Limitless
             Exploration with Aora
           </Text>
+
           <CustomButton
             title="Continue with Email"
             handlePress={() => router.push("/sign-in")}

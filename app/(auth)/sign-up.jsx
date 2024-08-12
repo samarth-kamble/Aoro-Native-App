@@ -1,28 +1,33 @@
-import { View, ScrollView, Dimensions, Image, Text, Alert } from "react-native";
-import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { images } from "../../constants";
+import { useState } from "react";
 import { Link, router } from "expo-router";
-import FormField from "../../components/FormField";
-import CustomButton from "../../components/CustomButton";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, ScrollView, Dimensions, Alert, Image } from "react-native";
+
+import { images } from "../../constants";
 import { createUser } from "../../lib/appwrite";
+import { CustomButton, FormField } from "../../components";
+import { useGlobalContext } from "../../context/GlobalProvider";
+
 const SignUp = () => {
+  const { setUser, setIsLogged } = useGlobalContext();
+
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     username: "",
     email: "",
     password: "",
   });
-  const submit = async () => {
-    if (!form.username || !form.email || !form.password) {
-      Alert.alert("Error", "Please fill all fields");
-    }
-    setSubmitting(true);
 
+  const submit = async () => {
+    if (form.username === "" || form.email === "" || form.password === "") {
+      Alert.alert("Error", "Please fill in all fields");
+    }
+
+    setSubmitting(true);
     try {
       const result = await createUser(form.email, form.password, form.username);
-
-      // TODO: Set it To global State
+      setUser(result);
+      setIsLogged(true);
 
       router.replace("/home");
     } catch (error) {
@@ -31,11 +36,12 @@ const SignUp = () => {
       setSubmitting(false);
     }
   };
+
   return (
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
         <View
-          className="w-full flex justify-center min-h-[85vh] px-4 my-6"
+          className="w-full flex justify-center h-full px-4 my-6"
           style={{
             minHeight: Dimensions.get("window").height - 100,
           }}
